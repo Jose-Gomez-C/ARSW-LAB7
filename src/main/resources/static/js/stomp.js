@@ -2,6 +2,9 @@ var app = (function () {
 
     var seats = [[true, true, true, true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true, true, true, true]];
     var c,ctx,isListen = true;
+    var nombre;
+    var fecha;
+    var movie ;
 
     class Seat {
         constructor(row, col) {
@@ -63,7 +66,7 @@ var app = (function () {
         //subscribe to /topic/TOPICXX when connections succeed
         stompClient.connect({}, function (frame) {
             console.log('Connected: ' + frame);
-            stompClient.subscribe('/topic/buyticket', function (message) {
+            stompClient.subscribe('/topic/buyticket.'+name+"."+fecha+"."+movie , function (message) {
                  callback(message);
             });
         });
@@ -112,7 +115,7 @@ var app = (function () {
         if (seats[row][col]===true){
             seats[row][col]=false;
             console.info("purchased ticket");
-            stompClient.send("/topic/buyticket", {}, JSON.stringify(st)); 
+            stompClient.send("/topic/buyticket."+name+"."+fecha+"."+movie, {}, JSON.stringify(st)); 
             
         }
         else{
@@ -126,7 +129,6 @@ var app = (function () {
         seats[theObject.row][theObject.col] = false; 
         
         drawSeats();
-        alert("Asiento comprado");
     }
 
 
@@ -137,6 +139,12 @@ var app = (function () {
             var can = document.getElementById("canvas");
             drawSeats();
             //websocket connection
+            
+        },
+        conect: function(){
+            nombre = $("#name").val();
+            fecha = $("#Fecha").val();
+            movie = $("#pelicula").val();
             connectAndSubscribe(getEvent);
         },
 
