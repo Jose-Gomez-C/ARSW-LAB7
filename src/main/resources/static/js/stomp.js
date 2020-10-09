@@ -1,8 +1,8 @@
 var app = (function () {
 
     var seats = [[true, true, true, true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true, true, true, true], [true, true, true, true, true, true, true, true, true, true, true, true]];
-    var c,ctx;
-    
+    var c,ctx,isListen = true;
+
     class Seat {
         constructor(row, col) {
             this.row = row;
@@ -15,13 +15,16 @@ var app = (function () {
 
     //get the x, y positions of the mouse click relative to the canvas
     var getMousePosition = function (evt) {
-        $('#myCanvas').click(function (e) {
-            var rect = myCanvas.getBoundingClientRect();
-            var x = e.clientX - rect.left;
-            var y = e.clientY - rect.top;
-            console.info(x);
-            console.info(y);
-        });
+        if(isListen){
+            isListen = false;
+            $('#myCanvas').click(function (e) {
+                var rect = myCanvas.getBoundingClientRect();
+                var x = e.clientX - rect.left;
+                var y = e.clientY - rect.top;
+                verifySeats(x,y);
+            });
+        }
+        
   
     };
     
@@ -51,8 +54,8 @@ var app = (function () {
             row++;
         }
     };
-
-    var connectAndSubscribe = function () {
+     
+    var connectAndSubscribe = function (callback) {
         console.info('Connecting to WS...');
         var socket = new SockJS('/stompendpoint');
         stompClient = Stomp.over(socket);
@@ -61,14 +64,49 @@ var app = (function () {
         stompClient.connect({}, function (frame) {
             console.log('Connected: ' + frame);
             stompClient.subscribe('/topic/buyticket', function (message) {
-               alert("evento recibido");
-               var theObject=JSON.parse(message.body);
-
+                 callback(message);
             });
         });
 
     };
+    var seatCalculate = function(x,y){
+        var row,col,limiteX1;
+        var limiteY1;
+        var limiteX;
+        var limiteY;
+        var parar = true; 
+        for (var i = 1; i < 8 && parar; i++) {
+            for (var j = 1; j < 13 && parar; j++) {
+                limiteX = j * 20 +(20*(j-1));
+                limiteY = i * 20 + 100 +(20*(i-1));
+                limiteX1 = j * 20 *2;
+                limiteY1 = i * 20 *2 + 100;
+                if (x >= limiteX && x <= limiteX1 && y >= limiteY && y <= limiteY1) {
+                    row = i;
+                    col = j;
+                    console.log(row);
+                    console.log(col);
+                    parar = false;
+                    verifyAvailability(row-1, col-1);
+                }
+            }
+        }
 
+
+
+    }
+
+    var verifySeats = function(row,col){
+        var c = document.getElementById("myCanvas");
+        var ctx = c.getContext("2d");
+        const pixel = ctx.getImageData(row, col, 1, 1).data;
+        if(pixel[1]===153 && pixel[3]===255){
+            seatCalculate(row,col);
+            
+        }
+        if(pixel[0]===255 && pixel[3]===255)
+            alert("Este asiento esta ocupado");
+    }
     var verifyAvailability = function (row,col) {
         var st = new Seat(row, col);
         if (seats[row][col]===true){
@@ -82,16 +120,24 @@ var app = (function () {
         }  
 
     };
-
+    var getEvent = function(evento){
+        var theObject = JSON.parse(evento.body);
+        console.info(theObject);
+        seats[theObject.row][theObject.col] = false; 
+        
+        drawSeats();
+        alert("Asiento comprado");
+    }
 
 
     return {
+        getMousePosition : getMousePosition,
 
         init: function () {
             var can = document.getElementById("canvas");
             drawSeats();
             //websocket connection
-            connectAndSubscribe();
+            connectAndSubscribe(getEvent);
         },
 
         buyTicket: function (row, col) {
