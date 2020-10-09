@@ -16,7 +16,7 @@ var app = (function () {
     //get the x, y positions of the mouse click relative to the canvas
     var getMousePosition = function (evt) {
         $('#myCanvas').click(function (e) {
-            var rect = canvas.getBoundingClientRect();
+            var rect = myCanvas.getBoundingClientRect();
             var x = e.clientX - rect.left;
             var y = e.clientY - rect.top;
             console.info(x);
@@ -60,9 +60,9 @@ var app = (function () {
         //subscribe to /topic/TOPICXX when connections succeed
         stompClient.connect({}, function (frame) {
             console.log('Connected: ' + frame);
-            stompClient.subscribe('/topic/buyticket', function (eventbody) {
-               console.alert("evento recibido");
-               var theObject=JSON.parse(eventbody.body);
+            stompClient.subscribe('/topic/buyticket', function (message) {
+               alert("evento recibido");
+               var theObject=JSON.parse(message.body);
 
             });
         });
@@ -74,7 +74,7 @@ var app = (function () {
         if (seats[row][col]===true){
             seats[row][col]=false;
             console.info("purchased ticket");
-            stompClient.send("/app/buyticket", {}, JSON.stringify(st)); 
+            stompClient.send("/topic/buyticket", {}, JSON.stringify(st)); 
             
         }
         else{
@@ -95,7 +95,7 @@ var app = (function () {
         },
 
         buyTicket: function (row, col) {
-            console.info("buying ticket at row: " + row + "col: " + col);
+            console.info("buying ticket at row: " + row + " col: " + col);
             verifyAvailability(row,col);
             
             //buy ticket
