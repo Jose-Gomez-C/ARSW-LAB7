@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Cinema bookings</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+       
+        <script src="/webjars/jquery/jquery.min.js" rel="stylesheet"></script>
+        <script src="/webjars/sockjs-client/sockjs.min.js" rel="stylesheet"></script>
+        <script src="/webjars/stomp-websocket/stomp.min.js" rel="stylesheet"></script>
+        <script src="/webjars/bootstrap/3.3.7/js/bootstrap.min.js" rel="stylesheet"></script>
+        <script src="js/stomp.js"></script>
+
+        
+    </head>
+    <body  onload="app.init()">
+        <form class="form-inline">
+            <h4><label for="Cinema" id="cinema">Cinema</label></h4>
+            <div class="form-group mx-sm-3 mb-2">
+                <input type="text" class="form-control" id="name" placeholder="Name">
+            </div>
+            <div class="form-group mx-sm-3 mb-2">
+            <input type="date" class="form-control" id="Fecha" placeholder="Date">
+            </div>
+            <input type="text" id= pelicula placeholder="Movie"> 
+
+            <button type="button" class="btn btn-dark" id="boton" onclick="app.conect()">Conectar</button>
+
+        </form>
+        <div>
+        <canvas id="myCanvas" width="500" height="400" style="border:1px solid #000000;">
+        Your browser does not support the HTML5 canvas tag.
+        </canvas>
+        <form class="form-inline" style="text-align: center;">
+            <div id="formulario" style="text-align: left;" >
+                <h3>Buy Ticket</h3>
+                <br>
+                <div class="form-group mx-sm-3 mb-2">
+                    <input type="text" class="form-control" id="row" placeholder="Row">
+                    <input type="text" class="form-control" id="col" placeholder="Col">
+                    <button type="button" class="btn btn-dark" onclick="app.getMousePosition()" id="hola">Buy</button>
+                    <button type="button" class="btn btn-dark" onclick="app.buyTicket($('#row').val(),$('#col').val())" id="buy">hola</button>
+                </div>
+            </div>
+        </form>
+
+        
+        
+        </div>
+    </body>
+</html>
